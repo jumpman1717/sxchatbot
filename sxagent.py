@@ -5,6 +5,12 @@ from llama_index.core import Document, VectorStoreIndex, Settings
 from llama_index.llms.openai import OpenAI
 import nltk
 
+nltk_data_dir = os.path.join(os.getcwd(), "nltk_data")
+nltk.download("punkt", download_dir=nltk_data_dir)
+
+# Tell NLTK where to find the data
+nltk.data.path.append(nltk_data_dir)
+
 # For sentence splitting
 nltk.download('punkt')
 
