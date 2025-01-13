@@ -5,6 +5,8 @@ from nltk.tokenize import sent_tokenize
 from llama_index.core import Document, VectorStoreIndex, Settings
 from llama_index.llms.openai import OpenAI
 import nltk
+nltk.download('punkt')
+
 
 # For sentence splitting
 nltk.download('punkt')
