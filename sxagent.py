@@ -1,15 +1,14 @@
 import os
 import openai
 import streamlit as st
-from nltk.tokenize import sent_tokenize
 from llama_index.core import Document, VectorStoreIndex, Settings
 from llama_index.llms.openai import OpenAI
 import nltk
-nltk.download('punkt')
-
 
 # For sentence splitting
 nltk.download('punkt')
+
+from nltk.tokenize import sent_tokenize
 
 # Helper function for text chunking
 def chunk_text_by_sentence(text, max_words=200):
