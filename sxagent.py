@@ -5,10 +5,15 @@ from llama_index.core import Document, VectorStoreIndex, Settings
 from llama_index.llms.openai import OpenAI
 import nltk
 
+# Define a custom NLTK data path to ensure resources are available
 nltk_data_dir = os.path.join(os.getcwd(), "nltk_data")
-nltk.download("punkt", download_dir=nltk_data_dir)
+os.makedirs(nltk_data_dir, exist_ok=True)  # Create the directory if it doesn't exist
 
-# Tell NLTK where to find the data
+# Download necessary NLTK resources
+nltk.download("punkt", download_dir=nltk_data_dir)
+nltk.download("punkt_tab", download_dir=nltk_data_dir)
+
+# Add the custom NLTK data path to NLTK's search paths
 nltk.data.path.append(nltk_data_dir)
 
 # For sentence splitting
