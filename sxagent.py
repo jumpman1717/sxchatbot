@@ -66,8 +66,8 @@ def setup_rag_index(file_url="https://raw.githubusercontent.com/jumpman1717/sxch
     return index
 
 def main():
-    st.title("RAG-Powered Chatbot for Content Writing")
-    st.write("This chatbot is powered by a preloaded document and OpenAI's GPT model.")
+    st.title("SX AI")
+    st.write("This SX AI Agent is powered with preloaded documentation about SX and GPT-4")
 
     # Use the OpenAI API key from environment variables
     openai_api_key = os.getenv("OPENAI_API_KEY")
