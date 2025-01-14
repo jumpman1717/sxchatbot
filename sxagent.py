@@ -95,7 +95,9 @@ def main():
         query_engine = index.as_query_engine()
         response = query_engine.query(user_input)
         st.write("### Response")
-        st.code(str(response), language="text")
+        formatted_response = response.replace("\n", "\n\n")  # Add extra newlines for better readability
+        st.markdown(formatted_response)
+
 
 if __name__ == "__main__":
     main()
