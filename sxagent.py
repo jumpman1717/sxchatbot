@@ -21,12 +21,7 @@ nltk.download('punkt')
 
 from nltk.tokenize import sent_tokenize
 
-# Helper function for text chunking
 def chunk_text_by_sentence(text, max_words=200):
-    """
-    Splits 'text' into sentence-based chunks. Each chunk will have 
-    up to 'max_words' words, so we don't cut off mid-sentence.
-    """
     sentences = sent_tokenize(text)
     chunks = []
     current_chunk = []
@@ -46,14 +41,20 @@ def chunk_text_by_sentence(text, max_words=200):
         chunks.append(" ".join(current_chunk))
     return chunks
 
-# Set up RAG index
-def setup_rag_index(file, model="gpt-4", temperature=0.1):
+import requests
+
+def setup_rag_index(file_url="https://raw.githubusercontent.com/jumpman1717/sxchatbot/main/big.txt", model="gpt-4", temperature=0.1):
     """
-    Sets up the RAG index using the uploaded file.
+    Sets up the RAG index using a file from a URL.
     """
-    # Read the content of the UploadedFile object
-    full_text = file.getvalue().decode("utf-8")
-    
+    try:
+        # Fetch the file content from the URL
+        response = requests.get(file_url)
+        response.raise_for_status()  # Raise an error for failed requests
+        full_text = response.text  # Read the text content
+    except requests.exceptions.RequestException as e:
+        raise ValueError(f"Failed to fetch file from {file_url}: {str(e)}")
+
     # Chunk the text and create documents
     text_chunks = chunk_text_by_sentence(full_text, max_words=200)
     documents = [Document(text=chunk) for chunk in text_chunks]
@@ -64,46 +65,37 @@ def setup_rag_index(file, model="gpt-4", temperature=0.1):
     index = VectorStoreIndex.from_documents(documents)
     return index
 
-# Streamlit app
 def main():
     st.title("RAG-Powered Chatbot for Content Writing")
-    st.write(
-        "This chatbot is designed to help you write content based on your project-specific knowledge."
-    )
+    st.write("This chatbot is powered by a preloaded document and OpenAI's GPT model.")
 
-    # Input field for OpenAI API key
-    openai_api_key = st.text_input(
-        "Enter your OpenAI API Key:", type="password"
-    )
+    # Use the OpenAI API key from environment variables
+    openai_api_key = os.getenv("OPENAI_API_KEY")
+    if not openai_api_key:
+        st.error("OpenAI API key not found. Please set it as an environment variable.")
+        return
 
-    # File uploader for the project-specific document
-    input_file = st.file_uploader(
-        "Upload your project-specific document (text file):", type="txt"
-    )
+    openai.api_key = openai_api_key
 
-    if input_file and openai_api_key:
-        # Set OpenAI API key
-        openai.api_key = openai_api_key
+       # URL for the RAG file
+    file_url = "https://raw.githubusercontent.com/jumpman1717/sxchatbot/main/big.txt"
 
-        # Set up RAG index
-        index = setup_rag_index(input_file)
+    # Load the RAG index using the URL
+    try:
+        index = setup_rag_index(file_url)
+    except Exception as e:
+        st.error(f"Failed to load RAG document: {str(e)}")
+        return
 
-        # Chat interface
-        st.write("### Chat Interface")
-        user_input = st.text_area(
-            "Ask a question or request content:", 
-            height=150  # Adjust height as needed
-        )
+    # Chat interface
+    st.write("### Chat Interface")
+    user_input = st.text_area("Ask a question or request content:", height=150)
 
-        if user_input:
-            query_engine = index.as_query_engine()
-            response = query_engine.query(user_input)
-            st.write("### Response")
-            st.code(str(response), language="text")
-    elif not input_file:
-        st.warning("Please upload a text file.")
-    elif not openai_api_key:
-        st.warning("Please enter your OpenAI API key.")
+    if user_input:
+        query_engine = index.as_query_engine()
+        response = query_engine.query(user_input)
+        st.write("### Response")
+        st.code(str(response), language="text")
 
 if __name__ == "__main__":
     main()
